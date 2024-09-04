@@ -65,97 +65,92 @@
         }
     </style>
     <script>
-       
-// Define the model architecture
-const model = tf.sequential();
-model.add(tf.layers.dense({units: 2, inputShape: [8]}));
+        // Preprocess the input data
+        function preprocessInput(data) {
+            const gender = data.gender === 'Female' ? 1 : 0;
+            const smoking_history_mapping = {
+                'never': 0,
+                'former': 1,
+                'current': 2,
+                'not current': 3,
+                'ever': 4,
+                'No Info': 5
+            };
+            const smoking_history = smoking_history_mapping[data.smoking_history];
 
-// Preprocess the input data
-function preprocessInput(data) {
-    const gender = data.gender === 'Female' ? 1 : 0;
-    const smoking_history_mapping = {
-        'never': 0,
-        'former': 1,
-        'current': 2,
-        'not current': 3,
-        'ever': 4,
-        'No Info': 5
-    };
-    const smoking_history = smoking_history_mapping[data.smoking_history];
+            // Create the input array
+            const inputArray = [
+                gender,
+                data.age,
+                data.hypertension,
+                data.heart_disease,
+                smoking_history,
+                data.bmi,
+                data.HbA1c_level,
+                data.blood_glucose_level
+            ];
 
-    // Create the input array
-    const inputArray = [
-        gender,
-        data.age,
-        data.hypertension,
-        data.heart_disease,
-        smoking_history,
-        data.bmi,
-        data.HbA1c_level,
-        data.blood_glucose_level
-    ];
+            // Mean and standard deviation derived from the training data
+            const mean = [
+                0.41466000,
+                41.8858560,
+                0.07485,
+                0.03942,
+                2.17965,
+                27.3207671,
+                5.527507,
+                138.058060
+            ];
+            const stdDev = [
+                0.49302848,
+                22.51672729,
+                0.26314915,
+                0.19459204,
+                1.88964967,
+                6.63675023,
+                1.07066674,
+                40.70793251
+            ];
 
-    // Mean and standard deviation derived from the training data
-    const mean = [
-        0.41466000,
-        41.8858560,
-        0.07485,
-        0.03942,
-        2.17965,
-        27.3207671,
-        5.527507,
-        138.058060
-    ];
-    const stdDev = [
-        0.49302848,
-        22.51672729,
-        0.26314915,
-        0.19459204,
-        1.88964967,
-        6.63675023,
-        1.07066674,
-        40.70793251
-    ];
+            const normalizedInput = inputArray.map((value, index) => (value - mean[index]) / stdDev[index]);
 
-    const normalizedInput = inputArray.map((value, index) => (value - mean[index]) / stdDev[index]);
+            // Convert the array to a Tensor
+            return tf.tensor2d([normalizedInput]);
+        }
 
-    // Convert the array to a Tensor
-    return tf.tensor2d([normalizedInput]);
-}
+        // Make the prediction
+        async function predictDiabetes() {
+            try {
+                // Load the entire TensorFlow.js model (architecture + weights)
+                const model = await tf.loadLayersModel('model/model.json');
+                console.log("Model loaded successfully!");
 
-// Make the prediction
-async function predictDiabetes() {
-    try {
-        // Load the model weights
-        await model.loadWeights('mode/model.json');
-        console.log("Model loaded successfully!");
+                // Sample input data from form fields
+                const inputData = {
+                    gender: document.getElementById('gender').value,
+                    age: parseFloat(document.getElementById('age').value),
+                    hypertension: parseInt(document.getElementById('hypertension').value),
+                    heart_disease: parseInt(document.getElementById('heart_disease').value),
+                    smoking_history: document.getElementById('smoking_history').value,
+                    bmi: parseFloat(document.getElementById('bmi').value),
+                    HbA1c_level: parseFloat(document.getElementById('HbA1c_level').value),
+                    blood_glucose_level: parseFloat(document.getElementById('blood_glucose_level').value)
+                };
 
-        // Sample input data from form fields
-        const inputData = {
-            gender: document.getElementById('gender').value,
-            age: parseFloat(document.getElementById('age').value),
-            hypertension: parseInt(document.getElementById('hypertension').value),
-            heart_disease: parseInt(document.getElementById('heart_disease').value),
-            smoking_history: document.getElementById('smoking_history').value,
-            bmi: parseFloat(document.getElementById('bmi').value),
-            HbA1c_level: parseFloat(document.getElementById('HbA1c_level').value),
-            blood_glucose_level: parseFloat(document.getElementById('blood_glucose_level').value)
-        };
+                // Preprocess and predict
+                const inputTensor = preprocessInput(inputData);
+                const prediction = model.predict(inputTensor);
+                const predictedClass = prediction.argMax(-1).dataSync()[0];
+                const confidence = prediction.dataSync();
+                const classLabels = ["non-diabetic", "diabetic"];
+                const resultText = `Predicted Class: ${classLabels[predictedClass]} (${confidence[0].toFixed(4)}, ${confidence[1].toFixed(4)})`;
 
-        // Preprocess and predict
-        const inputTensor = preprocessInput(inputData);
-        const prediction = model.predict(inputTensor);
-        const predictedClass = prediction.argMax(-1).dataSync()[0];
-        const confidence = prediction.dataSync();
-        const classLabels = ["non-diabetic", "diabetic"];
-        const resultText = `Predicted Class: ${classLabels[predictedClass]} (${confidence[0].toFixed(4)}, ${confidence[1].toFixed(4)})`;
-
-        // Display the result
-        document.getElementById('predictionResult').innerText = resultText;
-    } catch (error) {
-        console.error("Error making prediction:", error);
-    }
-}
+                // Display the result
+                document.getElementById('predictionResult').innerText = resultText;
+            } catch (error) {
+                console.error("Error making prediction:", error);
+            }
+        }
     </script>
 </head>
 <body>
