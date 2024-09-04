@@ -123,7 +123,7 @@ function preprocessInput(data) {
 async function predictDiabetes() {
     try {
         // Load the TensorFlow.js model from a local path
-        const model = await tf.loadLayersModel('model/model.json');
+        const model = await tf.loadLayersModel('mode/model.json');
         console.log("Model loaded successfully!");
 
         // Sample input data from form fields
