@@ -66,6 +66,10 @@
     </style>
     <script>
        
+// Define the model architecture
+const model = tf.sequential();
+model.add(tf.layers.dense({units: 2, inputShape: [8]}));
+
 // Preprocess the input data
 function preprocessInput(data) {
     const gender = data.gender === 'Female' ? 1 : 0;
@@ -122,8 +126,8 @@ function preprocessInput(data) {
 // Make the prediction
 async function predictDiabetes() {
     try {
-        // Load the TensorFlow.js model from a local path
-        const model = await tf.loadLayersModel('mode/model.json');
+        // Load the model weights
+        await model.loadWeights('model/model.json');
         console.log("Model loaded successfully!");
 
         // Sample input data from form fields
