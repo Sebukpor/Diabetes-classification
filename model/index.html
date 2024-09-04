@@ -8,7 +8,7 @@
     <script>
         // Load the TensorFlow.js model from a local path
         async function loadModel() {
-            const model = await tf.loadLayersModel('./tfjs_model/model.json');
+            const model = await tf.loadLayersModel('model/model.json');
             console.log("Model loaded successfully!");
             return model;
         }
