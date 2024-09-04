@@ -3,8 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diabetes Detection</title>
+    <title>Diabetes Detection - DAS medhub</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header-title {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .header-title .das {
+            color: green;
+        }
+
+        .header-title .medhub {
+            color: orange;
+        }
+
+        label {
+            display: inline-block;
+            width: 200px;
+            margin-bottom: 10px;
+        }
+
+        input, select {
+            padding: 5px;
+            width: 200px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: green;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: darkgreen;
+        }
+
+        #predictionResult {
+            margin-top: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
     <script>
         // Preprocess the input data
         function preprocessInput(data) {
@@ -74,22 +133,26 @@
     </script>
 </head>
 <body>
+    <div class="header">
+        <h1 class="header-title"><span class="das">DAS</span> <span class="medhub">medhub</span></h1>
+    </div>
+
     <h1>Diabetes Detection</h1>
     <form>
         <label for="gender">Gender:</label>
         <select id="gender">
             <option value="Female">Female</option>
             <option value="Male">Male</option>
-        </select><br><br>
+        </select><br>
 
         <label for="age">Age:</label>
-        <input type="number" id="age" required><br><br>
+        <input type="number" id="age" required><br>
 
         <label for="hypertension">Hypertension (0 or 1):</label>
-        <input type="number" id="hypertension" min="0" max="1" required><br><br>
+        <input type="number" id="hypertension" min="0" max="1" required><br>
 
         <label for="heart_disease">Heart Disease (0 or 1):</label>
-        <input type="number" id="heart_disease" min="0" max="1" required><br><br>
+        <input type="number" id="heart_disease" min="0" max="1" required><br>
 
         <label for="smoking_history">Smoking History:</label>
         <select id="smoking_history">
@@ -99,16 +162,16 @@
             <option value="not current">Not Current</option>
             <option value="ever">Ever</option>
             <option value="No Info">No Info</option>
-        </select><br><br>
+        </select><br>
 
         <label for="bmi">BMI:</label>
-        <input type="number" id="bmi" step="0.01" required><br><br>
+        <input type="number" id="bmi" step="0.01" required><br>
 
         <label for="HbA1c_level">HbA1c Level:</label>
-        <input type="number" id="HbA1c_level" step="0.01" required><br><br>
+        <input type="number" id="HbA1c_level" step="0.01" required><br>
 
         <label for="blood_glucose_level">Blood Glucose Level:</label>
-        <input type="number" id="blood_glucose_level" required><br><br>
+        <input type="number" id="blood_glucose_level" required><br>
 
         <button type="button" onclick="predictDiabetes()">Predict Diabetes</button>
     </form>
