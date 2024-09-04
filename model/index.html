@@ -85,16 +85,16 @@
         <select id="gender">
             <option value="Female">Female</option>
             <option value="Male">Male</option>
-        </select><br>
+        </select><br><br>
 
         <label for="age">Age:</label>
-        <input type="number" id="age" required><br>
+        <input type="number" id="age" required><br><br>
 
         <label for="hypertension">Hypertension (0 or 1):</label>
-        <input type="number" id="hypertension" required><br>
+        <input type="number" id="hypertension" min="0" max="1" required><br><br>
 
         <label for="heart_disease">Heart Disease (0 or 1):</label>
-        <input type="number" id="heart_disease" required><br>
+        <input type="number" id="heart_disease" min="0" max="1" required><br><br>
 
         <label for="smoking_history">Smoking History:</label>
         <select id="smoking_history">
@@ -104,16 +104,16 @@
             <option value="not current">Not Current</option>
             <option value="ever">Ever</option>
             <option value="No Info">No Info</option>
-        </select><br>
+        </select><br><br>
 
         <label for="bmi">BMI:</label>
-        <input type="number" id="bmi" step="0.01" required><br>
+        <input type="number" id="bmi" step="0.01" required><br><br>
 
         <label for="HbA1c_level">HbA1c Level:</label>
-        <input type="number" id="HbA1c_level" step="0.01" required><br>
+        <input type="number" id="HbA1c_level" step="0.01" required><br><br>
 
         <label for="blood_glucose_level">Blood Glucose Level:</label>
-        <input type="number" id="blood_glucose_level" required><br>
+        <input type="number" id="blood_glucose_level" required><br><br>
 
         <button type="button" onclick="predictDiabetes()">Predict Diabetes</button>
     </form>
