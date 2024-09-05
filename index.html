@@ -121,8 +121,8 @@
         // Make the prediction
         async function predictDiabetes() {
             try {
-                // Load the entire TensorFlow.js model (architecture + weights)
-                const model = await tf.loadLayersModel('mode/model.json');
+                // Load the TensorFlow.js model (converted from SavedModel format)
+                const model = await tf.loadGraphModel('mode/model.json');
                 console.log("Model loaded successfully!");
 
                 // Sample input data from form fields
@@ -140,10 +140,13 @@
                 // Preprocess and predict
                 const inputTensor = preprocessInput(inputData);
                 const prediction = model.predict(inputTensor);
-                const predictedClass = prediction.argMax(-1).dataSync()[0];
-                const confidence = prediction.dataSync();
+                
+                // Get the raw output (sigmoid result) and apply a threshold
+                const confidence = prediction.dataSync()[0];
+                const predictedClass = confidence > 0.5 ? 1 : 0;  // Threshold of 0.5 for binary classification
+
                 const classLabels = ["non-diabetic", "diabetic"];
-                const resultText = `Predicted Class: ${classLabels[predictedClass]} (${confidence[0].toFixed(4)}, ${confidence[1].toFixed(4)})`;
+                const resultText = `Predicted Class: ${classLabels[predictedClass]} (Confidence: ${confidence.toFixed(4)})`;
 
                 // Display the result
                 document.getElementById('predictionResult').innerText = resultText;
