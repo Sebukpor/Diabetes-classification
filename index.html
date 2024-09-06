@@ -122,7 +122,7 @@
     async function predictDiabetes() {
         try {
             // Load the TensorFlow.js model (converted from SavedModel format)
-            const model = await tf.loadGraphModel('mode/model.json');
+            const model = await tf.loadGraphModel('model/model.json');
             console.log("Model loaded successfully!");
 
             // Sample input data from form fields
@@ -144,44 +144,45 @@
             // Get the raw output (sigmoid result)
             const confidence = prediction.dataSync()[0];
 
-            let explanation = '';
-const confidencePercentage = (confidence * 100).toFixed(4);
+            // Determine predicted class: if confidence > 0.5, predict diabetic (class 1), else non-diabetic (class 0)
+            const predictedClass = confidence >= 0.5 ? 1 : 0;
+            const classLabels = ['non-diabetic', 'diabetic'];
 
-// Special handling for highly certain predictions (1.0000 and 0.0000)
-if (confidence === 1.0000 && predictedClass === 1) {
-    explanation = `The model is absolutely certain (100.00% sure) that the patient is diabetic.`;
-} else if (confidence === 0.0000 && predictedClass === 0) {
-    explanation = `The model is absolutely certain (100.00% sure) that the patient is non-diabetic.`;
-} 
-// Handle very low confidence scores for non-diabetic predictions
-else if (confidencePercentage < 0.01 && predictedClass === 0) {
-    explanation = `The model is almost certain (confidence < 0.01%) that the patient is non-diabetic.`;
-} 
-// Handle low confidence (less than 1%) for non-diabetic predictions
-else if (confidencePercentage < 1 && predictedClass === 0) {
-    explanation = `The model is very confident (${confidencePercentage}% sure) that the patient is non-diabetic.`;
-// Handle high confidence (90% or more) for any prediction
-} else if (confidence >= 0.90) {
-    explanation = `The model is very confident (${confidencePercentage}% sure) that the patient is ${classLabels[predictedClass]}.`;
-// Handle low confidence (10% or less) for any prediction
-} else if (confidence <= 0.10) {
-    explanation = `The model is very confident (${confidencePercentage}% sure) that the patient is ${classLabels[predictedClass]}.`;
-// Default explanation for intermediate confidence scores
-} else {
-    explanation = `The model predicts that the patient is ${classLabels[predictedClass]} with a confidence of ${confidencePercentage}%.`;
-}
+            let explanation = '';
+            const confidencePercentage = (confidence * 100).toFixed(4);
+
+            // Special handling for highly certain predictions (1.0000 and 0.0000)
+            if (confidence === 1.0000 && predictedClass === 1) {
+                explanation = `The model is absolutely certain (100.00% sure) that the patient is diabetic.`;
+            } else if (confidence === 0.0000 && predictedClass === 0) {
+                explanation = `The model is absolutely certain (100.00% sure) that the patient is non-diabetic.`;
+            } 
+            // Handle very low confidence scores for non-diabetic predictions
+            else if (confidencePercentage < 0.01 && predictedClass === 0) {
+                explanation = `The model is almost certain (confidence < 0.01%) that the patient is non-diabetic.`;
+            } 
+            // Handle low confidence (less than 1%) for non-diabetic predictions
+            else if (confidencePercentage < 1 && predictedClass === 0) {
+                explanation = `The model is very confident (${confidencePercentage}% sure) that the patient is non-diabetic.`;
+            // Handle high confidence (90% or more) for any prediction
+            } else if (confidence >= 0.90) {
+                explanation = `The model is very confident (${confidencePercentage}% sure) that the patient is ${classLabels[predictedClass]}.`;
+            // Handle low confidence (10% or less) for any prediction
+            } else if (confidence <= 0.10) {
+                explanation = `The model is very confident (${confidencePercentage}% sure) that the patient is ${classLabels[predictedClass]}.`;
+            // Default explanation for intermediate confidence scores
+            } else {
+                explanation = `The model predicts that the patient is ${classLabels[predictedClass]} with a confidence of ${confidencePercentage}%.`;
+            }
 
             // Display the result
-            const resultText = Predicted Class: ${classLabels[predictedClass]}.\n${explanation};
+            const resultText = `Predicted Class: ${classLabels[predictedClass]}. ${explanation}`;
             document.getElementById('predictionResult').innerText = resultText;
         } catch (error) {
             console.error("Error making prediction:", error);
         }
     }
 </script>
-
-
-
 </head>
 <body>
     <div class="header">
