@@ -64,7 +64,7 @@
             color: #333;
         }
     </style>
-  <script>
+ <script>
     // Preprocess the input data
     function preprocessInput(data) {
         const gender = data.gender === 'Female' ? 1 : 0;
@@ -145,7 +145,7 @@
             const confidence = prediction.dataSync()[0];
 
             // Convert confidence to a percentage
-            const confidencePercentage = (confidence * 100).toFixed(2);
+            const confidencePercentage = (confidence * 100).toFixed(4);
 
             // Classify based on a threshold of 0.5
             const predictedClass = confidence > 0.5 ? 1 : 0;  // Threshold for binary classification
@@ -153,14 +153,12 @@
 
             // Display explanation based on confidence score
             let explanation = '';
-            if (predictedClass === 1) {
-                explanation = confidence > 0.9 
-                    ? `The model is confident (${confidencePercentage}% sure) that the patient is diabetic.` 
-                    : `The model predicts that the patient is diabetic with a confidence of ${confidencePercentage}%.`;
+            if (confidence >= 0.90) {
+                explanation = `The model is very confident (${confidencePercentage}% sure) that the patient is ${classLabels[predictedClass]}.`;
+            } else if (confidence <= 0.10) {
+                explanation = `The model is very confident (${confidencePercentage}% sure) that the patient is ${classLabels[predictedClass]}.`;
             } else {
-                explanation = confidence < 0.1 
-                    ? `The model is confident (${confidencePercentage}% sure) that the patient is non-diabetic.` 
-                    : `The model predicts that the patient is non-diabetic with a confidence of ${confidencePercentage}%.`;
+                explanation = `The model predicts that the patient is ${classLabels[predictedClass]} with a confidence of ${confidencePercentage}%.`;
             }
 
             // Display the result
@@ -171,6 +169,7 @@
         }
     }
 </script>
+
 
 </head>
 <body>
