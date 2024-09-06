@@ -159,23 +159,25 @@
             } else if (confidencePercentage < 0.01 && predictedClass === 0) {
                 explanation = `The model is almost certain (confidence < 0.01%) that the patient is non-diabetic.`;
             } else if (confidencePercentage < 1 && predictedClass === 0) {
-                explanation = `The model is very confident (${confidencePercentage}% sure) that the patient is non-diabetic.`;
+                explanation = `The model is confident (${confidencePercentage}% sure) that the patient is non-diabetic.`;
             } else if (confidence >= 0.90) {
-                explanation = `The model is very confident (${confidencePercentage}% sure) that the patient is ${classLabels[predictedClass]}.`;
+                explanation = `The model is confident (${confidencePercentage}% sure) that the patient is ${classLabels[predictedClass]}.`;
             } else if (confidence <= 0.10) {
-                explanation = `The model is very confident (${confidencePercentage}% sure) that the patient is ${classLabels[predictedClass]}.`;
+                explanation = `The model is confident (${confidencePercentage}% sure) that the patient is ${classLabels[predictedClass]}.`;
             } else {
                 explanation = `The model predicts that the patient is ${classLabels[predictedClass]} with a confidence of ${confidencePercentage}%.`;
             }
 
-            // Display the result
-            const resultText = `Predicted Class: ${classLabels[predictedClass]}. ${explanation}`;
-            document.getElementById('predictionResult').innerText = resultText;
+            // Display the result on separate lines
+            const resultText = `Predicted Class: ${classLabels[predictedClass]}`;
+            const explanationText = explanation;
+            document.getElementById('predictionResult').innerHTML = resultText + '<br>' + explanationText;
         } catch (error) {
             console.error("Error making prediction:", error);
         }
     }
 </script>
+
 </head>
 <body>
     <div class="header">
@@ -221,6 +223,6 @@
         <button type="button" onclick="predictDiabetes()">Predict Diabetes</button>
     </form>
 
-    <h2 id="predictionResult">Prediction will appear here.</h2> <br>
+    <h2 id="predictionResult">Prediction will appear here.</h2> 
 </body>
 </html>
