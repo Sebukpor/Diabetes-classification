@@ -64,7 +64,7 @@
             color: #333;
         }
     </style>
- <script>
+<script>
     // Preprocess the input data
     function preprocessInput(data) {
         const gender = data.gender === 'Female' ? 1 : 0;
@@ -144,14 +144,7 @@
             // Get the raw output (sigmoid result)
             const confidence = prediction.dataSync()[0];
 
-            // Convert confidence to a percentage
-            const confidencePercentage = (confidence * 100).toFixed(4);
-
-            // Classify based on a threshold of 0.5
-            const predictedClass = confidence > 0.5 ? 1 : 0;  // Threshold for binary classification
-            const classLabels = ["non-diabetic", "diabetic"];
-
-          let explanation = '';
+            let explanation = '';
 const confidencePercentage = (confidence * 100).toFixed(4);
 
 // Special handling for highly certain predictions (1.0000 and 0.0000)
@@ -178,15 +171,15 @@ else if (confidencePercentage < 1 && predictedClass === 0) {
     explanation = `The model predicts that the patient is ${classLabels[predictedClass]} with a confidence of ${confidencePercentage}%.`;
 }
 
-
             // Display the result
-            const resultText = `Predicted Class: ${classLabels[predictedClass]}.\n${explanation}`;
+            const resultText = Predicted Class: ${classLabels[predictedClass]}.\n${explanation};
             document.getElementById('predictionResult').innerText = resultText;
         } catch (error) {
             console.error("Error making prediction:", error);
         }
     }
 </script>
+
 
 
 </head>
