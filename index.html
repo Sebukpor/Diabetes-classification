@@ -148,24 +148,23 @@
             // Determine predicted class
             const predictedClass = confidence > 0.5 ? 1 : 0;
 
-            const confidencePercentage = (confidence * 100).toFixed(4);
             let explanation = '';
 
             // Special handling for highly certain predictions
             if (confidence === 1.0000 && predictedClass === 1) {
-                explanation = `The model is absolutely certain (100.00% sure) that the patient is diabetic.`;
+                explanation = `The model is absolutely certain (confidence score: ${confidence}) that the patient is diabetic.`;
             } else if (confidence === 0.0000 && predictedClass === 0) {
-                explanation = `The model is absolutely certain (100.00% sure) that the patient is non-diabetic.`;
-            } else if (confidencePercentage < 0.01 && predictedClass === 0) {
-                explanation = `The model is almost certain (confidence < 0.01%) that the patient is non-diabetic.`;
-            } else if (confidencePercentage < 1 && predictedClass === 0) {
-                explanation = `The model is confident (${confidencePercentage}% sure) that the patient is non-diabetic.`;
+                explanation = `The model is absolutely certain (confidence score: ${confidence}) that the patient is non-diabetic.`;
+            } else if (confidence < 0.01 && predictedClass === 0) {
+                explanation = `The model is almost certain (confidence score: ${confidence}) that the patient is non-diabetic.`;
+            } else if (confidence < 1 && predictedClass === 0) {
+                explanation = `The model is confident (confidence score: ${confidence}) that the patient is non-diabetic.`;
             } else if (confidence >= 0.90) {
-                explanation = `The model is confident (${confidencePercentage}% sure) that the patient is ${classLabels[predictedClass]}.`;
+                explanation = `The model is confident (confidence score: ${confidence}) that the patient is ${classLabels[predictedClass]}.`;
             } else if (confidence <= 0.10) {
-                explanation = `The model is confident (${confidencePercentage}% sure) that the patient is ${classLabels[predictedClass]}.`;
+                explanation = `The model is confident (confidence score: ${confidence}) that the patient is ${classLabels[predictedClass]}.`;
             } else {
-                explanation = `The model predicts that the patient is ${classLabels[predictedClass]} with a confidence of ${confidencePercentage}%.`;
+                explanation = `The model predicts that the patient is ${classLabels[predictedClass]} with a confidence score of ${confidence}.`;
             }
 
             // Display the result on separate lines
@@ -177,6 +176,7 @@
         }
     }
 </script>
+
 
 </head>
 <body>
