@@ -155,11 +155,11 @@
             let explanation = '';
             if (predictedClass === 1) {
                 explanation = confidence > 0.9 
-                    ? `The model is very confident (${confidencePercentage}% sure) that the patient is diabetic.` 
+                    ? `The model is confident (${confidencePercentage}% sure) that the patient is diabetic.` 
                     : `The model predicts that the patient is diabetic with a confidence of ${confidencePercentage}%.`;
             } else {
                 explanation = confidence < 0.1 
-                    ? `The model is very confident (${confidencePercentage}% sure) that the patient is non-diabetic.` 
+                    ? `The model is confident (${confidencePercentage}% sure) that the patient is non-diabetic.` 
                     : `The model predicts that the patient is non-diabetic with a confidence of ${confidencePercentage}%.`;
             }
 
