@@ -143,34 +143,16 @@
             
             // Get the raw output (sigmoid result)
             const confidence = prediction.dataSync()[0];
-            const classLabels = ["non-diabetic", "diabetic"];
+            const classLabels = ["Non-diabetic", "Diabetic"];
 
             // Determine predicted class
             const predictedClass = confidence > 0.5 ? 1 : 0;
 
-            let explanation = '';
+            // Append confidence score to the predicted class
+            const resultText = `Predicted Class: ${classLabels[predictedClass]} (Confidence: ${(confidence * 100).toFixed(2)}%)`;
 
-            // Special handling for highly certain predictions
-            if (confidence === 1.0000 && predictedClass === 1) {
-                explanation = `The model is absolutely certain (confidence score: ${confidence}) that the patient is diabetic.`;
-            } else if (confidence === 0.0000 && predictedClass === 0) {
-                explanation = `The model is absolutely certain (confidence score: ${confidence}) that the patient is non-diabetic.`;
-            } else if (confidence < 0.01 && predictedClass === 0) {
-                explanation = `The model is almost certain (confidence score: ${confidence}) that the patient is non-diabetic.`;
-            } else if (confidence < 1 && predictedClass === 0) {
-                explanation = `The model is confident (confidence score: ${confidence}) that the patient is non-diabetic.`;
-            } else if (confidence >= 0.90) {
-                explanation = `The model is confident (confidence score: ${confidence}) that the patient is ${classLabels[predictedClass]}.`;
-            } else if (confidence <= 0.10) {
-                explanation = `The model is confident (confidence score: ${confidence}) that the patient is ${classLabels[predictedClass]}.`;
-            } else {
-                explanation = `The model predicts that the patient is ${classLabels[predictedClass]} with a confidence score of ${confidence}.`;
-            }
-
-            // Display the result on separate lines
-            const resultText = `Predicted Class: ${classLabels[predictedClass]}`;
-            const explanationText = explanation;
-            document.getElementById('predictionResult').innerHTML = resultText + '<br>' + explanationText;
+            // Display the result
+            document.getElementById('predictionResult').innerHTML = resultText;
         } catch (error) {
             console.error("Error making prediction:", error);
         }
