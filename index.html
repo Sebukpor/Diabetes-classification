@@ -145,11 +145,20 @@
             const confidence = prediction.dataSync()[0];
             const classLabels = ["Non-diabetic", "Diabetic"];
 
-            // Determine predicted class
-            const predictedClass = confidence > 0.5 ? 1 : 0;
+            // Determine predicted class and adjust confidence score for each class
+            let predictedClass = '';
+            let confidenceScore = 0;
 
-            // Append confidence score to the predicted class
-            const resultText = `Predicted Class: ${classLabels[predictedClass]} (Confidence: ${(confidence * 100).toFixed(2)}%)`;
+            if (confidence > 0.5) {
+                predictedClass = classLabels[1]; // Diabetic
+                confidenceScore = (confidence * 100).toFixed(2);
+            } else {
+                predictedClass = classLabels[0]; // Non-diabetic
+                confidenceScore = ((1 - confidence) * 100).toFixed(2);
+            }
+
+            // Display predicted class and confidence score
+            const resultText = `Predicted Class: ${predictedClass} (Confidence: ${confidenceScore}%)`;
 
             // Display the result
             document.getElementById('predictionResult').innerHTML = resultText;
@@ -158,7 +167,6 @@
         }
     }
 </script>
-
 
 </head>
 <body>
