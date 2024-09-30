@@ -1,5 +1,5 @@
 # Diabetes-classification
-Here’s a sample `README.md` file that explains how to use the HTML file you’ve created for diabetes detection:
+
 
 ```markdown
 # Diabetes Detection Web Application
