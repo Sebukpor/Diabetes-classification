@@ -22,7 +22,7 @@ The project includes the following files and directories:
 - **TensorFlow.js**: The library is loaded via CDN in the HTML file, allowing the model to run in the browser.
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+This project is licensed. See the [LICENSE](LICENSE) file for more details.
 
 ## Acknowledgements
 - **TensorFlow.js**: For enabling machine learning in the browser.
