@@ -1,7 +1,3 @@
-Here's a clearer and more organized version of your README file for the project:
-
----
-
 # Diabetes Detection Web Application
 
 This web application allows users to predict the likelihood of diabetes based on various health parameters using a pre-trained TensorFlow.js model. The prediction is made directly in the browser by processing user inputs through a simple HTML form.
