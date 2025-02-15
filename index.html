@@ -13,29 +13,32 @@
       --background: #f8f9fa;
       --card-bg: #ffffff;
       --text-dark: #2d3436;
-      --success: #4CAF50;
-      --error: #f44336;
+      --input-border: #e0e0e0;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     body {
       font-family: 'Roboto', sans-serif;
       background-color: var(--background);
-      color: var(--text-dark);
       margin: 0;
       padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       min-height: 100vh;
+      color: var(--text-dark);
     }
 
     .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: var(--card-bg);
+      background-color: var(--card-bg);
       border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow);
+      max-width: 600px;
+      width: 100%;
       padding: 2rem;
     }
 
-    header {
+    .header {
       text-align: center;
       margin-bottom: 2rem;
     }
@@ -54,45 +57,50 @@
       color: var(--primary-orange);
     }
 
-    h1 {
-      font-size: 2rem;
+    .section-title {
+      font-size: 1.75rem;
       font-weight: 600;
-      color: var(--text-dark);
+      text-align: center;
       margin-bottom: 1.5rem;
     }
 
-    label {
-      display: block;
+    form {
+      display: grid;
+      gap: 1rem;
+    }
+
+    form label {
       font-weight: 500;
       margin-bottom: 0.5rem;
-      color: var(--text-dark);
+      display: block;
     }
 
-    input, select {
+    form input,
+    form select {
       width: 100%;
       padding: 0.75rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
       font-size: 1rem;
-      margin-bottom: 1rem;
-      transition: border-color 0.3s ease;
+      border: 2px solid var(--input-border);
+      border-radius: 8px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
 
-    input:focus, select:focus {
-      outline: none;
+    form input:focus,
+    form select:focus {
       border-color: var(--primary-green);
       box-shadow: 0 0 0 3px rgba(0, 128, 0, 0.1);
+      outline: none;
     }
 
     button {
       width: 100%;
       padding: 1rem;
-      background-color: var(--primary-green);
-      color: white;
-      border: none;
-      border-radius: 8px;
       font-size: 1.1rem;
       font-weight: 500;
+      color: #fff;
+      background-color: var(--primary-green);
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
@@ -106,136 +114,14 @@
       cursor: not-allowed;
     }
 
-    .result-card {
+    #predictionResult {
       margin-top: 2rem;
-      padding: 1.5rem;
-      background: var(--card-bg);
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      display: none;
-    }
-
-    .confidence-bar {
-      width: 100%;
-      height: 20px;
-      background: #e0e0e0;
-      border-radius: 10px;
-      margin: 1rem 0;
-      overflow: hidden;
-    }
-
-    .confidence-bar-fill {
-      height: 100%;
-      background: var(--primary-green);
-      border-radius: 10px;
-      transition: width 0.5s ease;
-    }
-
-    .confidence-text {
-      font-size: 1rem;
-      font-weight: 500;
-      color: var(--text-dark);
-      margin-top: 0.5rem;
-    }
-
-    .loading {
+      font-size: 1.25rem;
+      font-weight: 600;
       text-align: center;
-      margin: 1rem 0;
-      display: none;
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid var(--primary-green);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
     }
   </style>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1 class="header-title"><span class="das">DAS</span> <span class="medhub">medhub</span></h1>
-    </header>
-
-    <h1>Diabetes Detection</h1>
-    <form id="diabetesForm">
-      <label for="gender">Gender:</label>
-      <select id="gender">
-        <option value="Female">Female</option>
-        <option value="Male">Male</option>
-      </select>
-
-      <label for="age">Age:</label>
-      <input type="number" id="age" required>
-
-      <label for="hypertension">Hypertension (0 or 1):</label>
-      <input type="number" id="hypertension" min="0" max="1" required>
-
-      <label for="heart_disease">Heart Disease (0 or 1):</label>
-      <input type="number" id="heart_disease" min="0" max="1" required>
-
-      <label for="smoking_history">Smoking History:</label>
-      <select id="smoking_history">
-        <option value="never">Never</option>
-        <option value="former">Former</option>
-        <option value="current">Current</option>
-        <option value="not current">Not Current</option>
-        <option value="ever">Ever</option>
-        <option value="No Info">No Info</option>
-      </select>
-
-      <label for="bmi">BMI:</label>
-      <input type="number" id="bmi" step="0.01" required>
-
-      <label for="HbA1c_level">HbA1c Level:</label>
-      <input type="number" id="HbA1c_level" step="0.01" required>
-
-      <label for="blood_glucose_level">Blood Glucose Level:</label>
-      <input type="number" id="blood_glucose_level" required>
-
-      <button type="button" onclick="predictDiabetes()">Predict Diabetes</button>
-    </form>
-
-    <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <p>Analyzing data...</p>
-    </div>
-
-    <div class="result-card" id="result">
-      <h2>Prediction Result</h2>
-      <div id="predictionText"></div>
-      <div class="confidence-bar">
-        <div class="confidence-bar-fill" id="confidenceBar"></div>
-      </div>
-      <div class="confidence-text" id="confidenceText"></div>
-    </div>
-  </div>
-
   <script>
-    // Global model variable
-    let model;
-
-    // Load the model on page load
-    async function loadModel() {
-      try {
-        // Update the path if necessary (ensure it's correct)
-        model = await tf.loadGraphModel('model/model.json');
-        console.log("Model loaded successfully!");
-      } catch (error) {
-        console.error("Error loading model:", error);
-      }
-    }
-    loadModel();
-
     // Preprocess the input data
     function preprocessInput(data) {
       const gender = data.gender === 'Female' ? 1 : 0;
@@ -284,30 +170,18 @@
       ];
 
       const normalizedInput = inputArray.map((value, index) => (value - mean[index]) / stdDev[index]);
+      // Convert the array to a Tensor
       return tf.tensor2d([normalizedInput]);
     }
 
     // Make the prediction
     async function predictDiabetes() {
-      const loadingDiv = document.getElementById('loading');
-      const resultDiv = document.getElementById('result');
-      const predictionText = document.getElementById('predictionText');
-      const confidenceBar = document.getElementById('confidenceBar');
-      const confidenceText = document.getElementById('confidenceText');
-
       try {
-        // Show loading state and hide previous result
-        loadingDiv.style.display = 'block';
-        resultDiv.style.display = 'none';
+        // Load the TensorFlow.js model (adjust path if necessary)
+        const model = await tf.loadGraphModel('mode/model.json');
+        console.log("Model loaded successfully!");
 
-        // Check if model is loaded
-        if (!model) {
-          predictionText.innerHTML = "Model is still loading. Please wait and try again.";
-          resultDiv.style.display = 'block';
-          return;
-        }
-
-        // Get input data from form
+        // Sample input data from form fields
         const inputData = {
           gender: document.getElementById('gender').value,
           age: parseFloat(document.getElementById('age').value),
@@ -319,30 +193,82 @@
           blood_glucose_level: parseFloat(document.getElementById('blood_glucose_level').value)
         };
 
-        // Preprocess input and get prediction
+        // Preprocess and predict
         const inputTensor = preprocessInput(inputData);
         const prediction = model.predict(inputTensor);
+
+        // Get the raw output (sigmoid result)
         const confidence = prediction.dataSync()[0];
+        const classLabels = ["Non-diabetic", "Diabetic"];
 
-        // Determine predicted class and confidence score
-        const predictedClass = confidence > 0.5 ? "Diabetic" : "Non-diabetic";
-        const confidenceScore = confidence > 0.5 ? (confidence * 100).toFixed(2) : ((1 - confidence) * 100).toFixed(2);
+        // Determine predicted class and adjust confidence score for each class
+        let predictedClass = '';
+        let confidenceScore = 0;
 
-        // Update the result card
-        predictionText.innerHTML = `Predicted Class: <strong>${predictedClass}</strong>`;
-        confidenceBar.style.width = `${confidenceScore}%`;
-        confidenceText.innerHTML = `Confidence: ${confidenceScore}%`;
+        if (confidence > 0.5) {
+          predictedClass = classLabels[1]; // Diabetic
+          confidenceScore = (confidence * 100).toFixed(2);
+        } else {
+          predictedClass = classLabels[0]; // Non-diabetic
+          confidenceScore = ((1 - confidence) * 100).toFixed(2);
+        }
 
-        // Show result card
-        resultDiv.style.display = 'block';
+        // Display predicted class and confidence score
+        const resultText = `Predicted Class: ${predictedClass} (Confidence: ${confidenceScore}%)`;
+        document.getElementById('predictionResult').innerHTML = resultText;
       } catch (error) {
         console.error("Error making prediction:", error);
-        predictionText.innerHTML = "Error making prediction. Please try again.";
-        resultDiv.style.display = 'block';
-      } finally {
-        loadingDiv.style.display = 'none';
+        document.getElementById('predictionResult').innerHTML = "Error making prediction. Please try again.";
       }
     }
   </script>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="header-title"><span class="das">DAS</span> <span class="medhub">medhub</span></h1>
+    </div>
+
+    <h1 class="section-title">Diabetes Detection</h1>
+    <form>
+      <label for="gender">Gender:</label>
+      <select id="gender">
+        <option value="Female">Female</option>
+        <option value="Male">Male</option>
+      </select>
+
+      <label for="age">Age:</label>
+      <input type="number" id="age" required>
+
+      <label for="hypertension">Hypertension (0 or 1):</label>
+      <input type="number" id="hypertension" min="0" max="1" required>
+
+      <label for="heart_disease">Heart Disease (0 or 1):</label>
+      <input type="number" id="heart_disease" min="0" max="1" required>
+
+      <label for="smoking_history">Smoking History:</label>
+      <select id="smoking_history">
+        <option value="never">Never</option>
+        <option value="former">Former</option>
+        <option value="current">Current</option>
+        <option value="not current">Not Current</option>
+        <option value="ever">Ever</option>
+        <option value="No Info">No Info</option>
+      </select>
+
+      <label for="bmi">BMI:</label>
+      <input type="number" id="bmi" step="0.01" required>
+
+      <label for="HbA1c_level">HbA1c Level:</label>
+      <input type="number" id="HbA1c_level" step="0.01" required>
+
+      <label for="blood_glucose_level">Blood Glucose Level:</label>
+      <input type="number" id="blood_glucose_level" required>
+
+      <button type="button" onclick="predictDiabetes()">Predict Diabetes</button>
+    </form>
+
+    <div id="predictionResult">Prediction will appear here.</div>
+  </div>
 </body>
 </html>
