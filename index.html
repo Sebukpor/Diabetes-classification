@@ -1,218 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diabetes Detection - DAS medhub</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .header-title {
-            font-size: 32px;
-            font-weight: bold;
-        }
-
-        .header-title .das {
-            color: green;
-        }
-
-        .header-title .medhub {
-            color: orange;
-        }
-
-        label {
-            display: inline-block;
-            width: 200px;
-            margin-bottom: 10px;
-        }
-
-        input, select {
-            padding: 5px;
-            width: 200px;
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: green;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: darkgreen;
-        }
-
-        #predictionResult {
-            margin-top: 30px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-        }
-    </style>
-<script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diabetes Detection - DAS medhub</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Global Styles */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      color: #333;
+    }
+    .header {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .header-title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin: 0;
+    }
+    .header-title .das {
+      color: green;
+    }
+    .header-title .medhub {
+      color: orange;
+    }
+    .sub-title {
+      font-size: 1.5rem;
+      margin-top: 0.5rem;
+    }
+    .form-container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      width: 90%;
+      margin-bottom: 2rem;
+    }
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem 2rem;
+      align-items: center;
+    }
+    form label {
+      text-align: right;
+      padding-right: 1rem;
+      font-weight: 500;
+    }
+    form input,
+    form select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    .full-width {
+      grid-column: 1 / -1;
+      text-align: center;
+    }
+    button {
+      padding: 0.75rem 2rem;
+      background-color: green;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: darkgreen;
+    }
+    #predictionResult {
+      margin-top: 2rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+  <script>
     // Preprocess the input data
     function preprocessInput(data) {
-        const gender = data.gender === 'Female' ? 1 : 0;
-        const smoking_history_mapping = {
-            'never': 0,
-            'former': 1,
-            'current': 2,
-            'not current': 3,
-            'ever': 4,
-            'No Info': 5
-        };
-        const smoking_history = smoking_history_mapping[data.smoking_history];
+      const gender = data.gender === 'Female' ? 1 : 0;
+      const smoking_history_mapping = {
+        'never': 0,
+        'former': 1,
+        'current': 2,
+        'not current': 3,
+        'ever': 4,
+        'No Info': 5
+      };
+      const smoking_history = smoking_history_mapping[data.smoking_history];
 
-        // Create the input array
-        const inputArray = [
-            gender,
-            data.age,
-            data.hypertension,
-            data.heart_disease,
-            smoking_history,
-            data.bmi,
-            data.HbA1c_level,
-            data.blood_glucose_level
-        ];
+      // Create the input array
+      const inputArray = [
+        gender,
+        data.age,
+        data.hypertension,
+        data.heart_disease,
+        smoking_history,
+        data.bmi,
+        data.HbA1c_level,
+        data.blood_glucose_level
+      ];
 
-        // Mean and standard deviation derived from the training data
-        const mean = [
-            0.41466000,
-            41.8858560,
-            0.07485,
-            0.03942,
-            2.17965,
-            27.3207671,
-            5.527507,
-            138.058060
-        ];
-        const stdDev = [
-            0.49302848,
-            22.51672729,
-            0.26314915,
-            0.19459204,
-            1.88964967,
-            6.63675023,
-            1.07066674,
-            40.70793251
-        ];
+      // Mean and standard deviation derived from the training data
+      const mean = [
+        0.41466,
+        41.8858560,
+        0.07485,
+        0.03942,
+        2.17965,
+        27.3207671,
+        5.527507,
+        138.058060
+      ];
+      const stdDev = [
+        0.49302848,
+        22.51672729,
+        0.26314915,
+        0.19459204,
+        1.88964967,
+        6.63675023,
+        1.07066674,
+        40.70793251
+      ];
 
-        const normalizedInput = inputArray.map((value, index) => (value - mean[index]) / stdDev[index]);
+      const normalizedInput = inputArray.map((value, index) => (value - mean[index]) / stdDev[index]);
 
-        // Convert the array to a Tensor
-        return tf.tensor2d([normalizedInput]);
+      // Convert the array to a Tensor
+      return tf.tensor2d([normalizedInput]);
     }
 
     // Make the prediction
     async function predictDiabetes() {
-        try {
-            // Load the TensorFlow.js model (converted from SavedModel format)
-            const model = await tf.loadGraphModel('mode/model.json');
-            console.log("Model loaded successfully!");
+      try {
+        // Load the TensorFlow.js model (converted from SavedModel format)
+        const model = await tf.loadGraphModel('mode/model.json');
+        console.log("Model loaded successfully!");
 
-            // Sample input data from form fields
-            const inputData = {
-                gender: document.getElementById('gender').value,
-                age: parseFloat(document.getElementById('age').value),
-                hypertension: parseInt(document.getElementById('hypertension').value),
-                heart_disease: parseInt(document.getElementById('heart_disease').value),
-                smoking_history: document.getElementById('smoking_history').value,
-                bmi: parseFloat(document.getElementById('bmi').value),
-                HbA1c_level: parseFloat(document.getElementById('HbA1c_level').value),
-                blood_glucose_level: parseFloat(document.getElementById('blood_glucose_level').value)
-            };
+        // Sample input data from form fields
+        const inputData = {
+          gender: document.getElementById('gender').value,
+          age: parseFloat(document.getElementById('age').value),
+          hypertension: parseInt(document.getElementById('hypertension').value),
+          heart_disease: parseInt(document.getElementById('heart_disease').value),
+          smoking_history: document.getElementById('smoking_history').value,
+          bmi: parseFloat(document.getElementById('bmi').value),
+          HbA1c_level: parseFloat(document.getElementById('HbA1c_level').value),
+          blood_glucose_level: parseFloat(document.getElementById('blood_glucose_level').value)
+        };
 
-            // Preprocess and predict
-            const inputTensor = preprocessInput(inputData);
-            const prediction = model.predict(inputTensor);
-            
-            // Get the raw output (sigmoid result)
-            const confidence = prediction.dataSync()[0];
-            const classLabels = ["Non-diabetic", "Diabetic"];
+        // Preprocess and predict
+        const inputTensor = preprocessInput(inputData);
+        const prediction = model.predict(inputTensor);
+        
+        // Get the raw output (sigmoid result)
+        const confidence = prediction.dataSync()[0];
+        const classLabels = ["Non-diabetic", "Diabetic"];
 
-            // Determine predicted class and adjust confidence score for each class
-            let predictedClass = '';
-            let confidenceScore = 0;
+        // Determine predicted class and adjust confidence score for each class
+        let predictedClass = '';
+        let confidenceScore = 0;
 
-            if (confidence > 0.5) {
-                predictedClass = classLabels[1]; // Diabetic
-                confidenceScore = (confidence * 100).toFixed(2);
-            } else {
-                predictedClass = classLabels[0]; // Non-diabetic
-                confidenceScore = ((1 - confidence) * 100).toFixed(2);
-            }
-
-            // Display predicted class and confidence score
-            const resultText = `Predicted Class: ${predictedClass} (Confidence: ${confidenceScore}%)`;
-
-            // Display the result
-            document.getElementById('predictionResult').innerHTML = resultText;
-        } catch (error) {
-            console.error("Error making prediction:", error);
+        if (confidence > 0.5) {
+          predictedClass = classLabels[1]; // Diabetic
+          confidenceScore = (confidence * 100).toFixed(2);
+        } else {
+          predictedClass = classLabels[0]; // Non-diabetic
+          confidenceScore = ((1 - confidence) * 100).toFixed(2);
         }
-    }
-</script>
 
+        // Display predicted class and confidence score
+        const resultText = `Predicted Class: ${predictedClass} (Confidence: ${confidenceScore}%)`;
+        document.getElementById('predictionResult').innerHTML = resultText;
+      } catch (error) {
+        console.error("Error making prediction:", error);
+        document.getElementById('predictionResult').innerHTML = "Error making prediction. Please try again later.";
+      }
+    }
+  </script>
 </head>
 <body>
-    <div class="header">
-        <h1 class="header-title"><span class="das">DAS</span> <span class="medhub">medhub</span></h1>
-    </div>
-
-    <h1>Diabetes Detection</h1>
+  <div class="header">
+    <h1 class="header-title"><span class="das">DAS</span> <span class="medhub">medhub</span></h1>
+    <div class="sub-title">Diabetes Detection</div>
+  </div>
+  
+  <div class="form-container">
     <form>
-        <label for="gender">Gender:</label>
-        <select id="gender">
-            <option value="Female">Female</option>
-            <option value="Male">Male</option>
-        </select><br>
+      <label for="gender">Gender:</label>
+      <select id="gender">
+        <option value="Female">Female</option>
+        <option value="Male">Male</option>
+      </select>
 
-        <label for="age">Age:</label>
-        <input type="number" id="age" required><br>
+      <label for="age">Age:</label>
+      <input type="number" id="age" required>
 
-        <label for="hypertension">Hypertension (0 or 1):</label>
-        <input type="number" id="hypertension" min="0" max="1" required><br>
+      <label for="hypertension">Hypertension (0 or 1):</label>
+      <input type="number" id="hypertension" min="0" max="1" required>
 
-        <label for="heart_disease">Heart Disease (0 or 1):</label>
-        <input type="number" id="heart_disease" min="0" max="1" required><br>
+      <label for="heart_disease">Heart Disease (0 or 1):</label>
+      <input type="number" id="heart_disease" min="0" max="1" required>
 
-        <label for="smoking_history">Smoking History:</label>
-        <select id="smoking_history">
-            <option value="never">Never</option>
-            <option value="former">Former</option>
-            <option value="current">Current</option>
-            <option value="not current">Not Current</option>
-            <option value="ever">Ever</option>
-            <option value="No Info">No Info</option>
-        </select><br>
+      <label for="smoking_history">Smoking History:</label>
+      <select id="smoking_history">
+        <option value="never">Never</option>
+        <option value="former">Former</option>
+        <option value="current">Current</option>
+        <option value="not current">Not Current</option>
+        <option value="ever">Ever</option>
+        <option value="No Info">No Info</option>
+      </select>
 
-        <label for="bmi">BMI:</label>
-        <input type="number" id="bmi" step="0.01" required><br>
+      <label for="bmi">BMI:</label>
+      <input type="number" id="bmi" step="0.01" required>
 
-        <label for="HbA1c_level">HbA1c Level:</label>
-        <input type="number" id="HbA1c_level" step="0.01" required><br>
+      <label for="HbA1c_level">HbA1c Level:</label>
+      <input type="number" id="HbA1c_level" step="0.01" required>
 
-        <label for="blood_glucose_level">Blood Glucose Level:</label>
-        <input type="number" id="blood_glucose_level" required><br>
+      <label for="blood_glucose_level">Blood Glucose Level:</label>
+      <input type="number" id="blood_glucose_level" required>
 
+      <div class="full-width">
         <button type="button" onclick="predictDiabetes()">Predict Diabetes</button>
+      </div>
     </form>
-
-    <h2 id="predictionResult">Prediction will appear here.</h2> 
+  </div>
+  
+  <div id="predictionResult">Prediction will appear here.</div>
 </body>
 </html>
