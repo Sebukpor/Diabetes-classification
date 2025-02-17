@@ -122,104 +122,65 @@
     }
   </style>
   <script>
-    // Preprocess the input data
+    async function loadModel() {
+      const modelPath = 'model/model.json';
+      try {
+        const model = await tf.loadGraphModel(modelPath);
+        console.log("Model loaded successfully!");
+        return model;
+      } catch (error) {
+        console.error("Error loading model:", error);
+        document.getElementById('predictionResult').innerText = "Error loading model. Please check the path.";
+      }
+    }
+
     function preprocessInput(data) {
       const gender = data.gender === 'Female' ? 1 : 0;
       const smoking_history_mapping = {
-        'never': 0,
-        'former': 1,
-        'current': 2,
-        'not current': 3,
-        'ever': 4,
-        'No Info': 5
+        'never': 0, 'former': 1, 'current': 2, 'not current': 3, 'ever': 4, 'No Info': 5
       };
       const smoking_history = smoking_history_mapping[data.smoking_history];
 
-      // Create the input array
       const inputArray = [
-        gender,
-        data.age,
-        data.hypertension,
-        data.heart_disease,
-        smoking_history,
-        data.bmi,
-        data.HbA1c_level,
-        data.blood_glucose_level
+        gender, data.age, data.hypertension, data.heart_disease, smoking_history,
+        data.bmi, data.HbA1c_level, data.blood_glucose_level
       ];
 
-      // Mean and standard deviation derived from the training data
-      const mean = [
-        0.41466,
-        41.8858560,
-        0.07485,
-        0.03942,
-        2.17965,
-        27.3207671,
-        5.527507,
-        138.058060
-      ];
-      const stdDev = [
-        0.49302848,
-        22.51672729,
-        0.26314915,
-        0.19459204,
-        1.88964967,
-        6.63675023,
-        1.07066674,
-        40.70793251
-      ];
+      const mean = [0.41466, 41.88, 0.074, 0.039, 2.179, 27.32, 5.52, 138.05];
+      const stdDev = [0.49, 22.51, 0.26, 0.19, 1.88, 6.63, 1.07, 40.70];
 
       const normalizedInput = inputArray.map((value, index) => (value - mean[index]) / stdDev[index]);
-      // Convert the array to a Tensor
+
       return tf.tensor2d([normalizedInput]);
     }
 
-    // Make the prediction
     async function predictDiabetes() {
-      try {
-        // Load the TensorFlow.js model (adjust path if necessary)
-        const model = await tf.loadGraphModel('mode/model.json');
-        console.log("Model loaded successfully!");
+      const model = await loadModel();
+      if (!model) return;
 
-        // Sample input data from form fields
-        const inputData = {
-          gender: document.getElementById('gender').value,
-          age: parseFloat(document.getElementById('age').value),
-          hypertension: parseInt(document.getElementById('hypertension').value),
-          heart_disease: parseInt(document.getElementById('heart_disease').value),
-          smoking_history: document.getElementById('smoking_history').value,
-          bmi: parseFloat(document.getElementById('bmi').value),
-          HbA1c_level: parseFloat(document.getElementById('HbA1c_level').value),
-          blood_glucose_level: parseFloat(document.getElementById('blood_glucose_level').value)
-        };
+      const inputData = {
+        gender: document.getElementById('gender').value,
+        age: parseFloat(document.getElementById('age').value),
+        hypertension: parseInt(document.getElementById('hypertension').value),
+        heart_disease: parseInt(document.getElementById('heart_disease').value),
+        smoking_history: document.getElementById('smoking_history').value,
+        bmi: parseFloat(document.getElementById('bmi').value),
+        HbA1c_level: parseFloat(document.getElementById('HbA1c_level').value),
+        blood_glucose_level: parseFloat(document.getElementById('blood_glucose_level').value)
+      };
 
-        // Preprocess and predict
-        const inputTensor = preprocessInput(inputData);
-        const prediction = model.predict(inputTensor);
+      const inputTensor = preprocessInput(inputData);
+      const reshapedInput = inputTensor.reshape([1, inputTensor.shape[1]]);
+      
+      const prediction = model.predict(reshapedInput);
+      const confidenceArray = await prediction.data();
+      const confidence = confidenceArray[0];
 
-        // Get the raw output (sigmoid result)
-        const confidence = prediction.dataSync()[0];
-        const classLabels = ["Non-diabetic", "Diabetic"];
+      const classLabels = ["Non-diabetic", "Diabetic"];
+      const predictedClass = confidence > 0.5 ? classLabels[1] : classLabels[0];
+      const confidenceScore = (confidence * 100).toFixed(2);
 
-        // Determine predicted class and adjust confidence score for each class
-        let predictedClass = '';
-        let confidenceScore = 0;
-
-        if (confidence > 0.5) {
-          predictedClass = classLabels[1]; // Diabetic
-          confidenceScore = (confidence * 100).toFixed(2);
-        } else {
-          predictedClass = classLabels[0]; // Non-diabetic
-          confidenceScore = ((1 - confidence) * 100).toFixed(2);
-        }
-
-        // Display predicted class and confidence score
-        const resultText = `Predicted Class: ${predictedClass} (Confidence: ${confidenceScore}%)`;
-        document.getElementById('predictionResult').innerHTML = resultText;
-      } catch (error) {
-        console.error("Error making prediction:", error);
-        document.getElementById('predictionResult').innerHTML = "Error making prediction. Please try again.";
-      }
+      document.getElementById('predictionResult').innerHTML = `Predicted Class: ${predictedClass} (Confidence: ${confidenceScore}%)`;
     }
   </script>
 </head>
@@ -232,38 +193,10 @@
     <h1 class="section-title">Diabetes Detection</h1>
     <form>
       <label for="gender">Gender:</label>
-      <select id="gender">
-        <option value="Female">Female</option>
-        <option value="Male">Male</option>
-      </select>
+      <select id="gender"><option value="Female">Female</option><option value="Male">Male</option></select>
 
       <label for="age">Age:</label>
       <input type="number" id="age" required>
-
-      <label for="hypertension">Hypertension (0 or 1):</label>
-      <input type="number" id="hypertension" min="0" max="1" required>
-
-      <label for="heart_disease">Heart Disease (0 or 1):</label>
-      <input type="number" id="heart_disease" min="0" max="1" required>
-
-      <label for="smoking_history">Smoking History:</label>
-      <select id="smoking_history">
-        <option value="never">Never</option>
-        <option value="former">Former</option>
-        <option value="current">Current</option>
-        <option value="not current">Not Current</option>
-        <option value="ever">Ever</option>
-        <option value="No Info">No Info</option>
-      </select>
-
-      <label for="bmi">BMI:</label>
-      <input type="number" id="bmi" step="0.01" required>
-
-      <label for="HbA1c_level">HbA1c Level:</label>
-      <input type="number" id="HbA1c_level" step="0.01" required>
-
-      <label for="blood_glucose_level">Blood Glucose Level:</label>
-      <input type="number" id="blood_glucose_level" required>
 
       <button type="button" onclick="predictDiabetes()">Predict Diabetes</button>
     </form>
