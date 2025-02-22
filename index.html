@@ -122,20 +122,33 @@
     }
   </style>
   <script>
-    // Preprocess the input data
+    // Preprocess the input data using the updated mappings
     function preprocessInput(data) {
-      const gender = data.gender === 'Female' ? 1 : 0;
+      // Updated Gender mapping: {'Female': 0, 'Male': 1, 'Other': 2}
+      let gender;
+      if (data.gender === 'Female') {
+        gender = 0;
+      } else if (data.gender === 'Male') {
+        gender = 1;
+      } else if (data.gender === 'Other') {
+        gender = 2;
+      } else {
+        gender = 0; // default/fallback
+      }
+
+      // Updated Smoking History mapping:
+      // {'No Info': 0, 'current': 1, 'ever': 2, 'former': 3, 'never': 4, 'not current': 5}
       const smoking_history_mapping = {
-        'never': 0,
-        'former': 1,
-        'current': 2,
-        'not current': 3,
-        'ever': 4,
-        'No Info': 5
+        'No Info': 0,
+        'current': 1,
+        'ever': 2,
+        'former': 3,
+        'never': 4,
+        'not current': 5
       };
       const smoking_history = smoking_history_mapping[data.smoking_history];
 
-      // Create the input array
+      // Create the input array in the expected order
       const inputArray = [
         gender,
         data.age,
@@ -149,28 +162,19 @@
 
       // Mean and standard deviation derived from the training data
       const mean = [
-        0.41466,
-        41.8858560,
-        0.07485,
-        0.03942,
-        2.17965,
-        27.3207671,
-        5.527507,
-        138.058060
+       4.14660000e-01, 4.18858560e+01, 
+       7.48500000e-02, 3.94200000e-02,
+       2.17965000e+00, 2.73207671e+01, 
+       5.52750700e+00, 1.38058060e+02
       ];
       const stdDev = [
-        0.49302848,
-        22.51672729,
-        0.26314915,
-        0.19459204,
-        1.88964967,
-        6.63675023,
-        1.07066674,
-        40.70793251
+       0.49302848, 22.51672729,  0.26314915, 
+       0.19459204,  1.88964967,  6.63675023,
+       1.07066674, 40.70793251
       ];
 
       const normalizedInput = inputArray.map((value, index) => (value - mean[index]) / stdDev[index]);
-      // Convert the array to a Tensor
+      // Convert the array to a Tensor2D
       return tf.tensor2d([normalizedInput]);
     }
 
@@ -236,6 +240,7 @@
       <select id="gender">
         <option value="Female">Female</option>
         <option value="Male">Male</option>
+        <option value="Other">Other</option>
       </select>
 
       <label for="age">Age:</label>
@@ -249,12 +254,12 @@
 
       <label for="smoking_history">Smoking History:</label>
       <select id="smoking_history">
-        <option value="never">Never</option>
-        <option value="former">Former</option>
-        <option value="current">Current</option>
-        <option value="not current">Not Current</option>
-        <option value="ever">Ever</option>
         <option value="No Info">No Info</option>
+        <option value="current">current</option>
+        <option value="ever">ever</option>
+        <option value="former">former</option>
+        <option value="never">never</option>
+        <option value="not current">not current</option>
       </select>
 
       <label for="bmi">BMI:</label>
