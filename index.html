@@ -182,7 +182,7 @@
     async function predictDiabetes() {
       try {
         // Load the TensorFlow.js model (adjust path if necessary)
-        const model = await tf.loadGraphModel('mode/model.json');
+        const model = await tf.loadGraphModel('model/model.json');
         console.log("Model loaded successfully!");
 
         // Collect input data from form fields
