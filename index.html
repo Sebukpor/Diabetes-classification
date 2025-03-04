@@ -114,7 +114,7 @@
     async function loadModel() {
       try {
         // Adjust the path to your TFJS model directory as needed
-        model = await tf.loadGraphModel('tfjs_model/model.json');
+        model = await tf.loadGraphModel('mode/model.json');
         console.log("Model loaded successfully!");
       } catch (error) {
         console.error("Error loading model:", error);
