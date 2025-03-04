@@ -16,7 +16,6 @@
       --input-border: #e0e0e0;
       --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-
     body {
       font-family: 'Roboto', sans-serif;
       background-color: var(--background);
@@ -28,7 +27,6 @@
       min-height: 100vh;
       color: var(--text-dark);
     }
-
     .container {
       background-color: var(--card-bg);
       border-radius: 12px;
@@ -37,44 +35,36 @@
       width: 100%;
       padding: 2rem;
     }
-
     .header {
       text-align: center;
       margin-bottom: 2rem;
     }
-
     .header-title {
       font-size: 2.5rem;
       font-weight: 700;
       margin: 0;
     }
-
     .header-title .das {
       color: var(--primary-green);
     }
-
     .header-title .medhub {
       color: var(--primary-orange);
     }
-
     .section-title {
       font-size: 1.75rem;
       font-weight: 600;
       text-align: center;
       margin-bottom: 1.5rem;
     }
-
     form {
       display: grid;
       gap: 1rem;
     }
-
     form label {
       font-weight: 500;
       margin-bottom: 0.5rem;
       display: block;
     }
-
     form input,
     form select {
       width: 100%;
@@ -84,14 +74,12 @@
       border-radius: 8px;
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
-
     form input:focus,
     form select:focus {
       border-color: var(--primary-green);
       box-shadow: 0 0 0 3px rgba(0, 128, 0, 0.1);
       outline: none;
     }
-
     button {
       width: 100%;
       padding: 1rem;
@@ -104,16 +92,13 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-
     button:hover {
       background-color: #006400;
     }
-
     button:disabled {
       background-color: #cccccc;
       cursor: not-allowed;
     }
-
     #predictionResult {
       margin-top: 2rem;
       font-size: 1.25rem;
@@ -122,6 +107,21 @@
     }
   </style>
   <script>
+    // Global model variable to cache the loaded model
+    let model;
+
+    // Load the model once when the page loads
+    async function loadModel() {
+      try {
+        // Adjust the path to your TFJS model directory as needed
+        model = await tf.loadGraphModel('tfjs_model/model.json');
+        console.log("Model loaded successfully!");
+      } catch (error) {
+        console.error("Error loading model:", error);
+      }
+    }
+    window.onload = loadModel;
+
     // Preprocess the input data using the updated mappings
     function preprocessInput(data) {
       // Updated Gender mapping: {'Female': 0, 'Male': 1, 'Other': 2}
@@ -180,11 +180,11 @@
 
     // Make the prediction
     async function predictDiabetes() {
+      if (!model) {
+        document.getElementById('predictionResult').innerHTML = "Model is not loaded yet. Please wait.";
+        return;
+      }
       try {
-        // Load the TensorFlow.js model (adjust path if necessary)
-        const model = await tf.loadGraphModel('model/model.json');
-        console.log("Model loaded successfully!");
-
         // Collect input data from form fields
         const inputData = {
           gender: document.getElementById('gender').value,
@@ -197,16 +197,15 @@
           blood_glucose_level: parseFloat(document.getElementById('blood_glucose_level').value)
         };
 
-        // Preprocess and predict
+        // Preprocess input data and get prediction
         const inputTensor = preprocessInput(inputData);
         const prediction = model.predict(inputTensor);
 
-        // Apply sigmoid in case model outputs logits
-        const probabilityTensor = tf.sigmoid(prediction);
-        const confidence = probabilityTensor.dataSync()[0];
+        // Since the model's final layer uses sigmoid, its output is already in [0, 1].
+        // Remove the extra tf.sigmoid() call.
+        const confidence = prediction.dataSync()[0];
 
         const classLabels = ["Non-diabetic", "Diabetic"];
-
         let predictedClass = '';
         let confidenceScore = 0;
 
@@ -233,7 +232,6 @@
     <div class="header">
       <h1 class="header-title"><span class="das">DAS</span> <span class="medhub">medhub</span></h1>
     </div>
-
     <h1 class="section-title">Diabetes Detection</h1>
     <form>
       <label for="gender">Gender:</label>
@@ -242,16 +240,12 @@
         <option value="Male">Male</option>
         <option value="Other">Other</option>
       </select>
-
       <label for="age">Age:</label>
       <input type="number" id="age" required>
-
       <label for="hypertension">Hypertension (0 or 1):</label>
       <input type="number" id="hypertension" min="0" max="1" required>
-
       <label for="heart_disease">Heart Disease (0 or 1):</label>
       <input type="number" id="heart_disease" min="0" max="1" required>
-
       <label for="smoking_history">Smoking History:</label>
       <select id="smoking_history">
         <option value="No Info">No Info</option>
@@ -261,19 +255,14 @@
         <option value="never">never</option>
         <option value="not current">not current</option>
       </select>
-
       <label for="bmi">BMI:</label>
       <input type="number" id="bmi" step="0.01" required>
-
       <label for="HbA1c_level">HbA1c Level:</label>
       <input type="number" id="HbA1c_level" step="0.01" required>
-
       <label for="blood_glucose_level">Blood Glucose Level:</label>
       <input type="number" id="blood_glucose_level" required>
-
       <button type="button" onclick="predictDiabetes()">Predict Diabetes</button>
     </form>
-
     <div id="predictionResult">Prediction will appear here.</div>
   </div>
 </body>
