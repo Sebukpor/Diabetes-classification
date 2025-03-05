@@ -160,6 +160,11 @@
       border: 2px solid var(--error-red);
     }
 
+    .result-prediabetic {
+      background-color: #fff4e5;
+      border: 2px solid var(--primary-orange);
+    }
+
     .result-non-diabetic {
       background-color: #dcfce7;
       border: 2px solid var(--success-green);
@@ -285,7 +290,6 @@
       const mean = [0.41466, 41.885856, 0.07485, 0.03942, 2.17965, 27.3207671, 5.527507, 138.05806];
       const stdDev = [0.49302848, 22.51672729, 0.26314915, 0.19459204, 1.88964967, 6.63675023, 1.07066674, 40.70793251];
 
-
       const normalizedInput = inputArray.map((value, index) => (value - mean[index]) / stdDev[index]);
       return tf.tensor2d([normalizedInput]);
     }
@@ -310,26 +314,54 @@
 
         const inputTensor = preprocessInput(inputData);
         const prediction = model.predict(inputTensor);
-        const confidence = prediction.dataSync()[0];
+        const probability = prediction.dataSync()[0];
 
-        const classLabels = ["Non-diabetic", "Diabetic"];
-        let predictedClass = confidence > 0.5 ? classLabels[1] : classLabels[0];
-        let confidenceScore = (confidence > 0.5 ? confidence : 1 - confidence) * 100;
+        let predictedClass, confidenceScore;
+        // Define thresholds based on diabetic probability:
+        // ≥70%: Diabetic, 40%-70%: Prediabetic, <40%: Non-diabetic.
+        if (probability >= 0.70) {
+          predictedClass = "Diabetic";
+          confidenceScore = probability * 100;
+        } else if (probability >= 0.40) {
+          predictedClass = "Prediabetic";
+          confidenceScore = probability * 100;
+        } else {
+          predictedClass = "Non-diabetic";
+          confidenceScore = (1 - probability) * 100;
+        }
 
-        resultDiv.className = `result-card ${predictedClass === 'Diabetic' ? 'result-diabetic' : 'result-non-diabetic'}`;
+        let resultClass = "";
+        let resultIcon = "";
+        let resultNote = "";
+        let fillColor = "";
+        if (predictedClass === "Diabetic") {
+          resultClass = "result-diabetic";
+          resultIcon = "❌";
+          resultNote = "High risk detected. Please consult a healthcare professional.";
+          fillColor = "var(--error-red)";
+        } else if (predictedClass === "Prediabetic") {
+          resultClass = "result-prediabetic";
+          resultIcon = "⚠️";
+          resultNote = "Borderline risk. Consider lifestyle changes and consult a professional.";
+          fillColor = "var(--primary-orange)";
+        } else {
+          resultClass = "result-non-diabetic";
+          resultIcon = "✅";
+          resultNote = "Low risk. Maintain healthy lifestyle habits.";
+          fillColor = "var(--success-green)";
+        }
+
+        resultDiv.className = `result-card ${resultClass}`;
         resultDiv.innerHTML = `
           <h3>Prediction Result:</h3>
-          <div class="result-icon">${predictedClass === 'Diabetic' ? '⚠️' : '✅'}</div>
+          <div class="result-icon">${resultIcon}</div>
           <h2>${predictedClass}</h2>
           <div class="confidence-bar">
-            <div class="confidence-fill" style="width: ${confidenceScore.toFixed(2)}%;
-              background: ${predictedClass === 'Diabetic' ? 'var(--error-red)' : 'var(--success-green)'}">
+            <div class="confidence-fill" style="width: ${confidenceScore.toFixed(2)}%; background: ${fillColor}">
             </div>
           </div>
           <p>Confidence Level: ${confidenceScore.toFixed(2)}%</p>
-          <p class="result-note">${predictedClass === 'Diabetic' ? 
-            'Please consult a healthcare professional' : 
-            'Maintain healthy lifestyle habits'}</p>
+          <p class="result-note">${resultNote}</p>
         `;
         resultDiv.style.display = 'block';
       } catch (error) {
