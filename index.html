@@ -187,11 +187,32 @@
       font-size: 2rem;
       margin: 1rem 0;
     }
+
+    /* New styles for blood glucose input */
+    .blood-glucose-group {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .blood-glucose-input {
+      flex: 1;
+    }
+    
+    #blood_glucose_unit {
+      width: 120px;
+      padding: 0.75rem;
+      border: 2px solid var(--input-border);
+      border-radius: 8px;
+      background: white;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 class="section-title">Diabetes Assessment</h1>
+    <div class="header">
+      <!--<h1 class="header-title"><span class="das">DAS</span> <span class="medhub">medhub</span></h1>-->
+    </div>
+    <h1 class="section-title">Diabetes Type2 Assessment</h1>
     <form>
       <div class="form-columns">
         <div class="input-group">
@@ -238,7 +259,7 @@
       <div class="form-columns">
         <div class="input-group">
           <label for="bmi">BMI: <span class="input-note">(10.1-99.5)</span></label>
-          <input type="number" id="bmi" step="0.01" required>
+          <input type="number" id="bmi" step="0.01" min="10.1" max="99.5" required>
           <div class="validation-message"></div>
         </div>
         <div class="input-group">
@@ -248,8 +269,15 @@
         </div>
       </div>
       <div class="input-group">
-        <label for="blood_glucose_level">Blood Glucose Level: <span class="input-note">(80-300mg/dL)</span></label>
-        <input type="number" id="blood_glucose_level" required>
+        <label for="blood_glucose_level">Blood Glucose Level:</label>
+        <div class="blood-glucose-group">
+          <input type="number" id="blood_glucose_level" class="blood-glucose-input" min="80" max="300" step="1" required>
+          <select id="blood_glucose_unit">
+            <option value="mg/dL">mg/dL</option>
+            <option value="mmol/L">mmol/L</option>
+          </select>
+        </div>
+        <div class="input-note">Normal range: 80-300 mg/dL (4.4-16.7 mmol/L)</div>
         <div class="validation-message"></div>
       </div>
       <button type="button" onclick="predictDiabetes()" aria-live="polite" aria-busy="false">Predict Diabetes</button>
@@ -269,6 +297,14 @@
       }
     }
     window.onload = loadModel;
+
+    function convertGlucoseUnit(value, unit) {
+      if (unit === 'mmol/L') {
+        // Convert mmol/L to mg/dL: 1 mmol/L = 18.0182 mg/dL
+        return value * 18.0182;
+      }
+      return value;
+    }
 
     function preprocessInput(data) {
       let gender;
@@ -302,6 +338,13 @@
         btn.disabled = true;
         btn.innerHTML = '<div class="loading-spinner">⏳</div> Analyzing...';
 
+        // Get blood glucose unit and value
+        const glucoseUnit = document.getElementById('blood_glucose_unit').value;
+        let bloodGlucose = parseFloat(document.getElementById('blood_glucose_level').value);
+        
+        // Convert to mg/dL if needed
+        bloodGlucose = convertGlucoseUnit(bloodGlucose, glucoseUnit);
+
         const inputData = {
           gender: document.getElementById('gender').value,
           age: parseFloat(document.getElementById('age').value),
@@ -310,7 +353,7 @@
           smoking_history: document.getElementById('smoking_history').value,
           bmi: parseFloat(document.getElementById('bmi').value),
           HbA1c_level: parseFloat(document.getElementById('HbA1c_level').value),
-          blood_glucose_level: parseFloat(document.getElementById('blood_glucose_level').value)
+          blood_glucose_level: bloodGlucose
         };
 
         const inputTensor = preprocessInput(inputData);
@@ -384,6 +427,25 @@
           validation.textContent = '';
         }
       });
+    });
+
+    // Blood glucose unit change handler
+    document.getElementById('blood_glucose_unit').addEventListener('change', function() {
+      const glucoseInput = document.getElementById('blood_glucose_level');
+      const validation = glucoseInput.parentElement.querySelector('.validation-message');
+      
+      if (this.value === 'mmol/L') {
+        glucoseInput.setAttribute('step', '0.1');
+        glucoseInput.setAttribute('min', '4.4');
+        glucoseInput.setAttribute('max', '16.7');
+      } else {
+        glucoseInput.setAttribute('step', '1');
+        glucoseInput.setAttribute('min', '80');
+        glucoseInput.setAttribute('max', '300');
+      }
+      
+      // Trigger validation
+      glucoseInput.dispatchEvent(new Event('input'));
     });
   </script>
 </body>
